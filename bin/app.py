@@ -3,6 +3,7 @@ import asyncio
 import os
 import sys, traceback
 import threading
+import re
 
 # Discord part
 
@@ -12,6 +13,8 @@ PASSWORD = os.getenv('PASSWORD') or 'secret'
 
 client = discord.Client()
 irc_client = None
+
+gretellchannel = None
 
 @client.event
 @asyncio.coroutine
@@ -25,13 +28,18 @@ def on_ready():
 @asyncio.coroutine
 def on_message(message):
     nick = str(message.author).split('#')[0]
-    if message.content[0] in ['!','.','=','&','?','^','#']:
+    if message.content[0] in ['!','.','=','&','?','^']:
         #yield from client.send_message(message.channel, '%s wants his !lg' % nick)
         #yield irc_client.message('##kramell', '%s used !lg in discord channel %s' % (nick, message.channel))
         # '!RELAY -n 1 -channel ' + (pm ? 'msg' : chan) + ' -nick ' + nick + ' -prefix ' + chan + ':' + ' ' + message
         forsequell = '!RELAY -n 1 -channel %s -nick %s -prefix discord:%s: %s' % ('c-a#'+message.channel.name, nick, message.channel.id, message.content)
         print(forsequell)
         yield irc_client.message('Sequell', forsequell)
+    if message.content.startswith('@?'):
+        global gretellchannel
+        gretellchannel = message.channel
+        yield irc_client.message('Gretell', message.content)
+        
     if message.content.startswith('$dance'):
         tmp = yield from client.send_message(message.channel, ':D|-<')
         for i in range(2):
@@ -44,6 +52,8 @@ def on_message(message):
 import pydle
 
 ADMIN_NICKNAMES = [ 'Kramin', 'Kramin42']
+
+clrstrip = re.compile("\x03(?:\d{1,2}(?:,\d{1,2})?)?", re.UNICODE)
 
 class MyClient(pydle.Client):
     """
@@ -80,13 +90,23 @@ class MyClient(pydle.Client):
             print(message)
             super().on_message(target, source, message)
             
+            message = clrstrip.sub('', message)
+            
             if source=='Sequell':
             	msgarray = message.split(':')
             	serv = msgarray[0]
             	chanid = msgarray[1]
             	msg = ':'.join(msgarray[2:])
+            	if re.search('\[\d\d?/\d\d?\]:', msg):
+            	    s = re.split('(\[\d\d?/\d\d?\]:)', msg)
+            	    msg = s[0] + s[1] + '```\n' + ''.join(s[2:]).strip() + '\n```' # put only the content of the ?? in a block
+            	else:
+            	    msg = '```\n' + msg + '\n```' # put in a code block to preserve formatting
             	if serv=='discord':
             		yield from client.send_message(client.get_channel(chanid), msg)
+            
+            if source=='Gretell':
+                yield from client.send_message(gretellchannel, '```'+message+'```')
 
             # Tell a user if they are an administrator for this bot.
             if message.startswith('!adminstatus'):
@@ -108,7 +128,7 @@ def start_discord():
     print("Starting Discord thread...")
     discord_loop = asyncio.new_event_loop()
     asyncio.set_event_loop(discord_loop)
-    client.run(EMAIL, PASSWORD)
+    client.run(TOKEN)
 
 discord_thread = threading.Thread(target=start_discord)
 discord_thread.start()
