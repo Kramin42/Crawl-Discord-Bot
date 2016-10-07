@@ -47,6 +47,35 @@ def on_message(message):
             yield from client.edit_message(tmp, ':D|-<')
             yield from client.edit_message(tmp, r':D\-<')
             yield from client.edit_message(tmp, ':D|-<')
+    
+    pieces = message.content.strip().split(' ')
+    if pieces[0] == '$listroles' and message.server!=None:
+        vanity_roles = [r for r in message.server.roles if not r.is_everyone and r.permissions==message.server.default_role.permissions]
+        yield from client.send_message(message.channel, ', '.join(r.name for r in vanity_roles))
+    
+    if pieces[0] == '$addrole' and message.server!=None:
+        vanity_roles = [r for r in message.server.roles if not r.is_everyone and r.permissions==message.server.default_role.permissions]
+        new_role_name = ' '.join(pieces[1:])
+        matches = [r for r in vanity_roles if r.name==new_role_name]
+        if len(matches)>0:
+            yield from client.add_roles(message.author, matches[0])
+            yield from client.send_message(message.channel, 'Member %s has been given role %s' % (message.author.name, matches[0].name))
+        else:
+            yield from client.send_message(message.channel, 'Role does not exist: %s' % new_role_name)
+    
+    if pieces[0] == '$removerole' and message.server!=None:
+        vanity_roles = [r for r in message.server.roles if not r.is_everyone and r.permissions==message.server.default_role.permissions]
+        new_role_name = ' '.join(pieces[1:])
+        matches = [r for r in vanity_roles if r.name==new_role_name]
+        if len(matches)>0:
+            role = matches[0]
+            if role in message.author.roles:
+                yield from client.remove_roles(message.author, role)
+                yield from client.send_message(message.channel, 'Member %s has lost role %s' % (message.author.name, role.name))
+            else:
+                yield from client.send_message(message.channel, 'Member %s does not have role %s' % (message.author.name, role.name))
+        else:
+            yield from client.send_message(message.channel, 'Role does not exist: %s' % new_role_name)
 
 # IRC part
 import pydle
