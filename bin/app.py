@@ -16,6 +16,12 @@ irc_client = None
 
 gretellchannel = None
 
+def get_vanity_roles(message):
+    bot_role = [r for r in message.server.me.roles if r.name=="Bot"]
+    if len(bot_role)==0: return []
+    else: bot_role = bot_role[0]
+    return [r for r in message.server.roles if not r.is_everyone and r.permissions==message.server.default_role.permissions and r.position<bot_role.position]
+
 @client.event
 @asyncio.coroutine
 def on_ready():
@@ -50,11 +56,11 @@ def on_message(message):
     
     pieces = message.content.strip().split(' ')
     if pieces[0] == '$listroles' and message.server!=None:
-        vanity_roles = [r for r in message.server.roles if not r.is_everyone and r.permissions==message.server.default_role.permissions]
+        vanity_roles = get_vanity_roles(message)
         yield from client.send_message(message.channel, ', '.join(r.name for r in vanity_roles))
     
     if pieces[0] == '$addrole' and message.server!=None:
-        vanity_roles = [r for r in message.server.roles if not r.is_everyone and r.permissions==message.server.default_role.permissions]
+        vanity_roles = get_vanity_roles(message)
         new_role_name = ' '.join(pieces[1:])
         matches = [r for r in vanity_roles if r.name==new_role_name]
         if len(matches)>0:
@@ -64,7 +70,7 @@ def on_message(message):
             yield from client.send_message(message.channel, 'Role does not exist: %s' % new_role_name)
     
     if pieces[0] == '$removerole' and message.server!=None:
-        vanity_roles = [r for r in message.server.roles if not r.is_everyone and r.permissions==message.server.default_role.permissions]
+        vanity_roles = get_vanity_roles(message)
         new_role_name = ' '.join(pieces[1:])
         matches = [r for r in vanity_roles if r.name==new_role_name]
         if len(matches)>0:
