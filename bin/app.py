@@ -132,11 +132,22 @@ class MyClient(pydle.Client):
             	serv = msgarray[0]
             	chanid = msgarray[1]
             	msg = ':'.join(msgarray[2:])
+            	
+            	for mdchar in ['\\','*','_','~','`']:
+            	    msg = msg.replace(mdchar,'\\'+mdchar)
+            	
+            	
+            	if msg[:3]=='/me':
+            	    msg = '*'+msg[3:].strip()+'*'
+            	#msg = msg.replace('/me','*'+client.user.name+'*')
+            	
             	if re.search('\[\d\d?/\d\d?\]:', msg):
             	    s = re.split('(\[\d\d?/\d\d?\]:)', msg)
-            	    msg = s[0] + s[1] + '```\n' + ''.join(s[2:]).strip() + '\n```' # put only the content of the ?? in a block
+            	    #msg = s[0] + s[1] + '```\n' + ''.join(s[2:]).strip() + '\n```' # put only the content of the ?? in a block
+            	    msg = s[0] + s[1] + '\n' + ''.join(s[2:]).strip()
             	else:
-            	    msg = '```\n' + msg + '\n```' # put in a code block to preserve formatting
+            	    #msg = '```\n' + msg + '\n```' # put in a code block to preserve formatting
+            	    msg = msg
             	if serv=='discord':
             		yield from client.send_message(client.get_channel(chanid), msg)
             
