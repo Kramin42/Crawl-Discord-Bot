@@ -133,9 +133,14 @@ class MyClient(pydle.Client):
             	chanid = msgarray[1]
             	msg = ':'.join(msgarray[2:])
             	
-            	for mdchar in ['\\','*','_','~','`']:
-            	    msg = msg.replace(mdchar,'\\'+mdchar)
+            	url_regex = 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+            	msg_urls = re.findall(url_regex, msg)
+            	msg_wo_ulrs = re.sub(url_regex, '{}', msg)
             	
+            	for mdchar in ['\\','*','_','~','`']:
+            	    msg_wo_ulrs = msg_wo_ulrs.replace(mdchar,'\\'+mdchar)
+            	
+            	msg = msg_wo_ulrs.format(*msg_urls)
             	
             	if msg[:3]=='/me':
             	    msg = '*'+msg[3:].strip()+'*'
