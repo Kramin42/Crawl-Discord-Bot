@@ -1,5 +1,6 @@
 import discord
 import asyncio
+import time
 import os
 import sys, traceback
 import threading
@@ -48,10 +49,14 @@ def on_message(message):
         
     if message.content.startswith('$dance'):
         tmp = yield from client.send_message(message.channel, ':D|-<')
-        for i in range(2):
+        for i in range(1):
+            time.sleep(0.1)
             yield from client.edit_message(tmp, ':D/-<')
+            time.sleep(0.1)
             yield from client.edit_message(tmp, ':D|-<')
-            yield from client.edit_message(tmp, r':D\-<')
+            time.sleep(0.1)
+            yield from client.edit_message(tmp, ':D\\\\-<')
+            time.sleep(0.1)
             yield from client.edit_message(tmp, ':D|-<')
     
     pieces = message.content.strip().split(' ')
@@ -86,9 +91,9 @@ def on_message(message):
     if pieces[0]=='$glasses':
         # ( ••)    ( ••)>⌐■-■    (⌐■_■)
         tmp = yield from client.send_message(message.channel, '( ••)')
-        yield from asyncio.sleep(1)
+        time.sleep(1)
         yield from client.edit_message(tmp, '( ••)>⌐■-■')
-        yield from asyncio.sleep(1)
+        time.sleep(1)
         yield from client.edit_message(tmp, '(⌐■_■)')
     
     if pieces[0]=='$deal':
@@ -100,13 +105,13 @@ def on_message(message):
                  '            ',\
                  '    ( ••)   ']
         tmp = yield from client.send_message(message.channel, '```%s```' % '\n'.join(lines))
-        yield from asyncio.sleep(1)
+        time.sleep(1)
         yield from client.edit_message(tmp, '```%s```' % '\n'.join([glasses]+lines[1:]))
-        yield from asyncio.sleep(1)
+        time.sleep(1)
         yield from client.edit_message(tmp, '```%s```' % '\n'.join(lines[:1]+[glasses]+lines[2:]))
-        yield from asyncio.sleep(1)
+        time.sleep(1)
         yield from client.edit_message(tmp, '```%s```' % '\n'.join(lines[:2]+[glasses]+lines[3:]))
-        yield from asyncio.sleep(1)
+        time.sleep(1)
         yield from client.edit_message(tmp, '```%s```' % '\n'.join(lines[:1]+[dealwith]+lines[2:3]+[glasson]))
 
 # IRC part
