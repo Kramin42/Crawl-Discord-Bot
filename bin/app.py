@@ -89,10 +89,10 @@ def on_message(message):
             yield from client.send_message(message.channel, 'Role does not exist: %s' % new_role_name)
     
     if pieces[0]=='$glasses':
-        # ( ••)    ( ••)>⌐■-■    (⌐■_■)
-        tmp = yield from client.send_message(message.channel, '( ••)')
+        # ( •_•)    ( •_•)>⌐■-■    (⌐■_■)
+        tmp = yield from client.send_message(message.channel, '( •_•)')
         time.sleep(1)
-        yield from client.edit_message(tmp, '( ••)>⌐■-■')
+        yield from client.edit_message(tmp, '( •_•)>⌐■-■')
         time.sleep(1)
         yield from client.edit_message(tmp, '(⌐■_■)')
     
@@ -103,7 +103,7 @@ def on_message(message):
         lines = ['            ',\
                  '            ',\
                  '            ',\
-                 '    ( ••)   ']
+                 '    (•_•)   ']
         tmp = yield from client.send_message(message.channel, '```%s```' % '\n'.join(lines))
         time.sleep(1)
         yield from client.edit_message(tmp, '```%s```' % '\n'.join([glasses]+lines[1:]))
