@@ -82,6 +82,32 @@ def on_message(message):
                 yield from client.send_message(message.channel, 'Member %s does not have role %s' % (message.author.name, role.name))
         else:
             yield from client.send_message(message.channel, 'Role does not exist: %s' % new_role_name)
+    
+    if pieces[0]=='$glasses':
+        # ( ••)    ( ••)>⌐■-■    (⌐■_■)
+        tmp = yield from client.send_message(message.channel, '( ••)')
+        yield from asyncio.sleep(1)
+        yield from client.edit_message(tmp, '( ••)>⌐■-■')
+        yield from asyncio.sleep(1)
+        yield from client.edit_message(tmp, '(⌐■_■)')
+    
+    if pieces[0]=='$deal':
+        glasses ='    ⌐■-■    '
+        glasson ='   (⌐■_■)   '
+        dealwith='deal with it'
+        lines = ['            ',\
+                 '            ',\
+                 '            ',\
+                 '    ( ••)   ']
+        tmp = yield from client.send_message(message.channel, '```%s```' % '\n'.join(lines))
+        yield from asyncio.sleep(1)
+        yield from client.edit_message(tmp, '```%s```' % '\n'.join([glasses]+lines[1:]))
+        yield from asyncio.sleep(1)
+        yield from client.edit_message(tmp, '```%s```' % '\n'.join(lines[:1]+[glasses]+lines[2:]))
+        yield from asyncio.sleep(1)
+        yield from client.edit_message(tmp, '```%s```' % '\n'.join(lines[:2]+[glasses]+lines[3:]))
+        yield from asyncio.sleep(1)
+        yield from client.edit_message(tmp, '```%s```' % '\n'.join(lines[:1]+[dealwith]+lines[2:3]+[glasson]))
 
 # IRC part
 import pydle
@@ -133,14 +159,17 @@ class MyClient(pydle.Client):
             	chanid = msgarray[1]
             	msg = ':'.join(msgarray[2:])
             	
-            	url_regex = 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
-            	msg_urls = re.findall(url_regex, msg)
-            	msg_wo_ulrs = re.sub(url_regex, '{}', msg)
+            	url_regex = '(http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+)'
+            	#msg_urls = re.findall(url_regex, msg)
+            	msg_split = re.split(url_regex, msg)
             	
             	for mdchar in ['\\','*','_','~','`']:
-            	    msg_wo_ulrs = msg_wo_ulrs.replace(mdchar,'\\'+mdchar)
+            	    for i in range(0,len(msg_split),2):
+            	        msg_split[i] = msg_split[i].replace(mdchar,'\\'+mdchar)
+            	    #msg_wo_ulrs = msg_wo_ulrs.replace(mdchar,'\\'+mdchar)
             	
-            	msg = msg_wo_ulrs.format(*msg_urls)
+            	#msg = msg_wo_ulrs.format(*msg_urls)
+            	msg = ''.join(msg_split)
             	
             	if msg[:3]=='/me':
             	    msg = '*'+msg[3:].strip()+'*'
