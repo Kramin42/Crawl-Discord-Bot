@@ -41,7 +41,7 @@ def on_error(event, *args, **kwargs):
 @client.event
 @asyncio.coroutine
 def on_message(message):
-    print(message.content)
+    #print(message.content)
     nick = str(message.author).split('#')[0]
     if message.content[0] in ['!','.','=','&','?','^']:
         #yield from client.send_message(message.channel, '%s wants his !lg' % nick)
