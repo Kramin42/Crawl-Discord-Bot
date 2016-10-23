@@ -30,10 +30,18 @@ def on_ready():
     print(client.user.name)
     print(client.user.id)
     print('------')
+    sys.stdout.flush()
+
+@client.event
+@asyncio.coroutine
+def on_error(event, *args, **kwargs):
+    print(event, args, kwargs)
+    sys.stdout.flush()
 
 @client.event
 @asyncio.coroutine
 def on_message(message):
+    print(message.content)
     nick = str(message.author).split('#')[0]
     if message.content[0] in ['!','.','=','&','?','^']:
         #yield from client.send_message(message.channel, '%s wants his !lg' % nick)
@@ -113,6 +121,8 @@ def on_message(message):
         yield from client.edit_message(tmp, '```%s```' % '\n'.join(lines[:2]+[glasses]+lines[3:]))
         time.sleep(1)
         yield from client.edit_message(tmp, '```%s```' % '\n'.join(lines[:1]+[dealwith]+lines[2:3]+[glasson]))
+    sys.stdout.flush()
+    sys.stderr.flush()
 
 # IRC part
 import pydle
