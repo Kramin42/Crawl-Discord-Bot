@@ -54,7 +54,15 @@ def on_message(message):
         global gretellchannel
         gretellchannel = message.channel
         yield irc_client.message('Gretell', message.content)
-        
+    
+    if message.content.startswith('$zxcdance'):
+        tmp = yield from client.send_message(message.channel, '└[^_^]┐')
+        for i in range(2):
+            time.sleep(0.1)
+            yield from client.edit_message(tmp, '┌[^_^]┘')
+            time.sleep(0.1)
+            yield from client.edit_message(tmp, '└[^_^]┐')
+    
     if message.content.startswith('$dance'):
         tmp = yield from client.send_message(message.channel, ':D|-<')
         for i in range(1):
