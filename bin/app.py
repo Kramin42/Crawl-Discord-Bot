@@ -171,7 +171,7 @@ class MyClient(pydle.Client):
     @pydle.coroutine
     def on_message(self, target, source, message):
         try:
-            print(message)
+            print(message.encode('utf-8'))
             super().on_message(target, source, message)
             
             message = clrstrip.sub('', message)
