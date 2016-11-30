@@ -16,6 +16,7 @@ client = discord.Client()
 irc_client = None
 
 gretellchannel = None
+cheichannel = None
 
 def get_vanity_roles(message):
     bot_role = [r for r in message.server.me.roles if r.name=="Bot"]
@@ -42,6 +43,13 @@ def on_error(event, *args, **kwargs):
 @asyncio.coroutine
 def on_message(message):
     #print(message.content)
+    if message.author == client.user: # don't reply to yourself
+        if message.content[0] == '%': # special case, if it looks like a chei command, relay it
+            print('relaying my own message to chei')
+            global cheichannel
+            cheichannel = message.channel
+            yield irc_client.message('Cheibriados', message.content)
+        return
     nick = str(message.author).split('#')[0]
     if message.content[0] in ['!','.','=','&','?','^']:
         #yield from client.send_message(message.channel, '%s wants his !lg' % nick)
@@ -50,10 +58,16 @@ def on_message(message):
         forsequell = '!RELAY -n 1 -channel %s -nick %s -prefix discord:%s: %s' % ('c-a#'+message.channel.name, nick, message.channel.id, message.content)
         print(forsequell)
         yield irc_client.message('Sequell', forsequell)
+    
     if message.content.startswith('@?'):
         global gretellchannel
         gretellchannel = message.channel
         yield irc_client.message('Gretell', message.content)
+    
+    if message.content.startswith('%'):
+        global cheichannel
+        cheichannel = message.channel
+        yield irc_client.message('Cheibriados', message.content)
     
     if message.content.startswith('$zxcdance'):
         tmp = yield from client.send_message(message.channel, '└[^_^]┐')
@@ -210,6 +224,9 @@ class MyClient(pydle.Client):
             
             if source=='Gretell':
                 yield from client.send_message(gretellchannel, '```'+message+'```')
+            
+            if source=='Cheibriados':
+                yield from client.send_message(cheichannel, '```'+message+'```')
 
             # Tell a user if they are an administrator for this bot.
             if message.startswith('!adminstatus'):
